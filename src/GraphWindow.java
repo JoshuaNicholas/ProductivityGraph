@@ -4,11 +4,16 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class GraphWindow extends JFrame {
 
@@ -72,13 +77,13 @@ public class GraphWindow extends JFrame {
         GraphComponent slowest = leftDisplay.GetSlowest();
         if (rightDisplay.GetSlowest().GetCurrentValue() > slowest.GetCurrentValue())
             slowest = rightDisplay.GetSlowest();
-        slowestLabel.setText("Slowest Region: " + slowest.GetName() + " @ " + slowest.GetCurrentValue() + " days.");
+        slowestLabel.setText("Slowest: " + slowest.GetName() + " @ " + slowest.GetCurrentValue() + " days.");
 
         // Get and set fastest labels
         GraphComponent fastest = leftDisplay.GetSlowest();
         if (rightDisplay.GetFastest().GetCurrentValue() < fastest.GetCurrentValue())
             fastest = rightDisplay.GetFastest();
-        fastestLabel.setText("Fastest Region: " + fastest.GetName() + " @ " + fastest.GetCurrentValue() + " days.");
+        fastestLabel.setText("Fastest: " + fastest.GetName() + " @ " + fastest.GetCurrentValue() + " days.");
 
         leftDisplay.SetHighestValue(highest);
         rightDisplay.SetHighestValue(highest);
@@ -92,7 +97,7 @@ public class GraphWindow extends JFrame {
         updateLabel.setText("Last Update: " + LocalDateTime.now().format(timeFormat));
     }
 
-    public void ShowDataScreen() {
+    public void ShowDataScreen() throws URISyntaxException {
         clearFrame();
 
         JPanel panel = new JPanel(new GridBagLayout());
@@ -123,13 +128,14 @@ public class GraphWindow extends JFrame {
         c.fill = GridBagConstraints.HORIZONTAL;
 
         // Add logo label
-        JLabel logoLabel = new JLabel(sizedIcon("resources/ValoaSolarLogo.png", 0.05f), SwingConstants.LEFT);
+        ImageIcon ico = sizedIcon(getClass().getClassLoader().getResourceAsStream("ValoaSolarLogo.png"), 0.05f);
+        JLabel logoLabel = new JLabel(ico, SwingConstants.LEFT);
         c.gridx = 0;
         c.gridy = 1;
         panel.add(logoLabel, c);
 
         // Add leaderboard label
-        fastestLabel = new JLabel("Fastest Region:", SwingConstants.RIGHT);
+        fastestLabel = new JLabel("Fastest:", SwingConstants.RIGHT);
         fastestLabel.setForeground(new Color(0x00aa00));
         fastestLabel.setFont(dataFont);
         c.gridx = 1;
@@ -137,7 +143,7 @@ public class GraphWindow extends JFrame {
         panel.add(fastestLabel, c);
 
         // Add leaderboard label
-        slowestLabel = new JLabel("Slowest Region:", SwingConstants.LEFT);
+        slowestLabel = new JLabel("Slowest:", SwingConstants.LEFT);
         slowestLabel.setForeground(new Color(0xaa0000));
         slowestLabel.setFont(dataFont);
         c.gridx = 3;
@@ -156,7 +162,7 @@ public class GraphWindow extends JFrame {
         showingData = true;
     }
 
-    public void ShowIntroScreen(String authMessage) {
+    public void ShowIntroScreen(String authMessage) throws URISyntaxException {
         showingData = false;
         clearFrame();
 
@@ -179,7 +185,7 @@ public class GraphWindow extends JFrame {
         box.add(Box.createVerticalGlue());
 
         // QR Code
-        JLabel qrCode = new JLabel(sizedIcon("resources/ms-devicelogin-code.png", 0.75f));
+        JLabel qrCode = new JLabel(sizedIcon(getClass().getClassLoader().getResourceAsStream("ms-devicelogin-code.png"), 0.75f));
         qrCode.setAlignmentX(CENTER_ALIGNMENT);
         box.add(qrCode, BorderLayout.PAGE_START);
         box.add(Box.createVerticalGlue());
@@ -192,11 +198,11 @@ public class GraphWindow extends JFrame {
         //repaint();
     }
 
-    ImageIcon sizedIcon(String path, float heightPct) {
+    ImageIcon sizedIcon(InputStream path, float heightPct) {
         // Get bufferedImage
         BufferedImage img = null;
         try {
-            img = ImageIO.read(new File(path));
+            img = ImageIO.read(path);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -208,7 +214,7 @@ public class GraphWindow extends JFrame {
 
         // Resize and return
         Image dimg = img.getScaledInstance(newWidth, newHeight,
-                Image.SCALE_SMOOTH);
+                Image.SCALE_REPLICATE);
         return new ImageIcon(dimg);
     }
 }
