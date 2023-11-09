@@ -1,11 +1,9 @@
+package GraphComponents;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.font.FontRenderContext;
-import java.awt.font.GlyphVector;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class GraphDisplay extends JPanel {
     List<GraphComponent> components = new ArrayList<>();
