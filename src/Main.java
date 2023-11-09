@@ -6,9 +6,16 @@ import java.util.TimerTask;
 public class Main {
     public static void main(String[] args) {
         System.out.println("Graph Display Test-Run");
+        GraphWindow.Load();
 
         GraphWindow window = new GraphWindow("Graph Display");
-        window.ShowIntroScreen("Text Auth Message");
+        try {
+            window.ShowIntroScreen("Text Auth Message");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
 
         try {
             Thread.sleep(2000);
@@ -17,7 +24,13 @@ public class Main {
             Thread.currentThread().interrupt();
         }
 
-        window.ShowDataScreen();
+        try {
+            window.ShowDataScreen();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
 
         TimerTask refreshTask = new TimerTask() {
             @Override
