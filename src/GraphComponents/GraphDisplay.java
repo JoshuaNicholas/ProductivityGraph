@@ -1,20 +1,27 @@
+package GraphComponents;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.font.FontRenderContext;
-import java.awt.font.GlyphVector;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class GraphDisplay extends JPanel {
     List<GraphComponent> components = new ArrayList<>();
+    GridBagConstraints c = new GridBagConstraints();
 
     final float xMarginPct = 0.02f, yMarginPct = 0.02f;
     int xMargin = 0, yMargin = 0;
 
     public GraphDisplay() {
-        super();
+        super(new GridBagLayout());
+
+        c.weightx = 1.0f;
+        c.weighty = 1.0f;
+        c.fill = GridBagConstraints.BOTH;
+
+        xMargin = (int) (xMarginPct * getWidth());
+        yMargin = (int) (yMarginPct * getHeight());
+        c.insets = new Insets(yMargin, xMargin, yMargin, xMargin);
     }
 
     public void AddComponent(String name) {
@@ -23,6 +30,7 @@ public class GraphDisplay extends JPanel {
 
     public void AddComponent(GraphComponent component) {
         components.add(component);
+        needsRefresh = true;
 
         component.SetBaseValue(2 + (int) (Math.random() * 18));
         component.SetCurrentValue(2 + (int) (Math.random() * 18));
@@ -59,10 +67,51 @@ public class GraphDisplay extends JPanel {
         return current;
     }
 
+    boolean needsRefresh = false;
     public void Update() {
-        xMargin = (int)(getWidth() * xMarginPct);
-        yMargin = (int)(getHeight() * yMarginPct);
-        repaint();
+        if (needsRefresh) {
+            components.sort(Comparator.comparingInt(GraphComponent::GetCurrentValue));
+            addAllComponents();
+        }
+    }
+
+    private void addAllComponents() {
+        clearFrame();
+
+        int maxTableWidth = getWidth() / GetMaxWidth() - 3;
+        int maxTableHeight = 0;
+        int i = 0;
+
+        for (int y = 0; maxTableHeight == 0 || y < maxTableHeight; y++) {
+            c.gridy = y;
+            for (int x = 0; maxTableWidth == 0 || x < maxTableWidth; x++) {
+                c.gridx = x;
+
+                add(components.get(i).GetOutLabel(), c);
+
+                i++;
+                if (i >= components.size())
+                    return;
+            }
+        }
+
+        revalidate();
+        needsRefresh = false;
+    }
+
+    private int GetMaxWidth() {
+        int highestWidth = 1;
+
+        for (GraphComponent comp : components)
+            if (comp.GetOutLabel().getWidth() > highestWidth)
+                highestWidth = (int) comp.GetOutLabel().getPreferredSize().getWidth();
+
+        return highestWidth;
+    }
+
+    void clearFrame() {
+        removeAll();
+        //repaint();
     }
 
     private int highestValue = 0;
@@ -81,44 +130,5 @@ public class GraphDisplay extends JPanel {
         }
 
         return highestValue;
-    }
-
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        int usableX = getWidth() - xMargin * 2;
-        int usableY = getHeight() - yMargin;
-        g.setFont(GraphWindow.markerFont);
-
-        // Draw scale markers
-        for (int i = 0; i < highestValue + 1; i++) {
-            int xVal = (int) ((float) i / (highestValue + 1) * usableX) + xMargin;
-
-            g.drawLine(xVal, 0, xVal, getHeight());
-            g.drawString(i + "", xVal + 5, getHeight() - g.getFontMetrics().getHeight()/4);
-        }
-
-        DrawComponents(g);
-
-        System.out.println();
-    }
-
-    private void DrawComponents(Graphics g) {
-        int usableX = getWidth() - xMargin * 2;
-        int usableY = getHeight() - yMargin;
-
-        int yHeight = 0;
-        if (components.size() > 0)
-            yHeight = usableY/components.size() - yMargin/components.size();
-
-        // Draw components to self
-        for (int i = 0; i < components.size(); i++) {
-            GraphComponent component = components.get(i);
-            Image img = component.DrawBar(usableX, yHeight - yMargin, highestValue + 1);
-
-            int yPos = (int)((float)i * yHeight);
-
-            g.drawImage(img, xMargin, yMargin + yPos, null);
-        }
     }
 }

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="GraphUI:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/GraphUI_jar</output-path>
+    <root id="archive" name="GraphUI.jar">
+      <element id="module-output" name="GraphUI" />
+    </root>
+  </artifact>
+</component>

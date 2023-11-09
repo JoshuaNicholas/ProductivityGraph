@@ -1,10 +1,12 @@
-import java.time.Clock;
+import GraphComponents.GraphWindow;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class Main {
     public static void main(String[] args) {
         System.out.println("Graph Display Test-Run");
+        GraphWindow.Load();
 
         GraphWindow window = new GraphWindow("Graph Display");
         try {
