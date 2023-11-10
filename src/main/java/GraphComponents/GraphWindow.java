@@ -1,8 +1,13 @@
 package GraphComponents;
 
+import ApiAccessors.DriveReader;
+import ApiAccessors.WorksheetReader;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class GraphWindow extends JFrame {
 
@@ -40,18 +46,19 @@ public class GraphWindow extends JFrame {
 
     DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm:ss a");
 
-    List<GraphComponent> cList = new ArrayList<>(Arrays.asList(
-            new GraphComponent("City1"),
-            new GraphComponent("City2"),
-            new GraphComponent("City3"),
-            new GraphComponent("City4"),
-            new GraphComponent("City5"),
-            new GraphComponent("City6"),
-            new GraphComponent("City7"),
-            new GraphComponent("City8"),
-            new GraphComponent("City9"),
-            new GraphComponent("City10")
-    ));
+    //List<GraphComponent> cList = new ArrayList<>(Arrays.asList(
+    //        new GraphComponent("City1"),
+    //        new GraphComponent("City2"),
+    //        new GraphComponent("City3"),
+    //        new GraphComponent("City4"),
+    //        new GraphComponent("City5"),
+    //        new GraphComponent("City6"),
+    //        new GraphComponent("City7"),
+    //        new GraphComponent("City8"),
+    //        new GraphComponent("City9"),
+    //        new GraphComponent("City10")
+    //));
+    GraphComponent[] cList = new GraphComponent[0];
 
     public static void Load() {
         try {
@@ -69,19 +76,30 @@ public class GraphWindow extends JFrame {
         }
     }
 
-    // TODO remove
-    public void SetData() {
-        for (int i = 0; i < cList.size(); i++) {
+    public void SetData(WorksheetReader reader) {
+        cList = reader.GetData();
+        leftDisplay.components.clear();
+        rightDisplay.components.clear();
+        for (int i = 0; i < cList.length; i++) {
             if (i % 2 == 0)
-                leftDisplay.AddComponent(cList.get(i));
+                leftDisplay.AddComponent(cList[i]);
             else
-                rightDisplay.AddComponent(cList.get(i));
+                rightDisplay.AddComponent(cList[i]);
         }
     }
 
-    public void Update() {
+    public void Update(DriveReader reader) {
         if (!showingData)
             return;
+
+        try {
+            reader.worksheetReader.ReadSheet();
+        }
+        catch (Exception e) {
+            ShowItemsScreen(reader);
+        }
+
+        SetData(reader.worksheetReader);
 
         // Get and set highest values
         int highest = leftDisplay.GetHighestValue();
@@ -106,13 +124,12 @@ public class GraphWindow extends JFrame {
         leftDisplay.Update();
         rightDisplay.Update();
 
-        // TODO best and worst times
-
         // Refresh update label
         updateLabel.setText("Last Update: " + LocalDateTime.now().format(timeFormat));
     }
 
-    public void ShowDataScreen() throws URISyntaxException{
+    public void ShowDataScreen(DriveReader reader) throws URISyntaxException{
+        showingData = false;
         clearFrame();
 
         JPanel panel = new JPanel(new GridBagLayout());
@@ -192,9 +209,10 @@ public class GraphWindow extends JFrame {
         box.add(Box.createVerticalGlue());
 
         // Authentication Label
-        JLabel authLabel = new JLabel(authMessage);
-        authLabel.setFont(titleFont);
+        JLabel authLabel = new JLabel("<html><p style=\"text-align:center\">" + authMessage + "</p></html>", SwingConstants.CENTER);
+        authLabel.setFont(dataFont);
         authLabel.setAlignmentX(CENTER_ALIGNMENT);
+        //authLabel.setPreferredSize(new Dimension((int)(getWidth()*0.9), 0));
 
         box.add(authLabel, BorderLayout.PAGE_START);
         box.add(Box.createVerticalGlue());
@@ -205,6 +223,38 @@ public class GraphWindow extends JFrame {
         box.add(qrCode, BorderLayout.PAGE_START);
         box.add(Box.createVerticalGlue());
 
+        revalidate();
+    }
+
+    public void ShowItemsScreen(DriveReader reader) {
+        Map<String, String> sheets = reader.GetSheets();
+        clearFrame();
+
+        Box box = new Box(BoxLayout.Y_AXIS);
+        add(box);
+
+        JLabel titleLabel = new JLabel("Select spreadsheet to display.");
+        titleLabel.setFont(titleFont);
+        titleLabel.setAlignmentX(CENTER_ALIGNMENT);
+        box.add(titleLabel);
+
+        box.add(Box.createVerticalGlue());
+
+        for (var sheet : sheets.keySet()) {
+            JButton button = new JButton(sheets.get(sheet));
+            button.addActionListener(e -> {
+                if (!reader.SetSheet(sheet))
+                    ShowItemsScreen(reader);
+                try {
+                    ShowDataScreen(reader);
+                } catch (URISyntaxException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+            button.setAlignmentX(Component.CENTER_ALIGNMENT);
+            box.add(button);
+            box.add(Box.createVerticalGlue());
+        }
         revalidate();
     }
 

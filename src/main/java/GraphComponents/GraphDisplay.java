@@ -20,10 +20,12 @@ public class GraphDisplay extends JPanel {
     }
 
     public void AddComponent(GraphComponent component) {
+        if (component == null)
+            return;
         components.add(component);
 
-        component.SetBaseValue(2 + (int) (Math.random() * 18));
-        component.SetCurrentValue(2 + (int) (Math.random() * 18));
+        //component.SetBaseValue(2 + (int) (Math.random() * 18));
+        //component.SetCurrentValue(2 + (int) (Math.random() * 18));
     }
 
     public GraphComponent GetComponent(String name) {
