@@ -44,7 +44,7 @@ public class GraphWindow extends JFrame {
         add(new Label("Loading..."));
     }
 
-    DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm:ss a");
+    DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
 
     //List<GraphComponent> cList = new ArrayList<>(Arrays.asList(
     //        new GraphComponent("City1"),
@@ -183,7 +183,7 @@ public class GraphWindow extends JFrame {
         panel.add(slowestLabel, c);
 
         // Add update label
-        updateLabel = new JLabel("Last Update: Never", SwingConstants.RIGHT);
+        updateLabel = new JLabel("Awaiting first update...", SwingConstants.RIGHT);
         updateLabel.setFont(dataFont);
         c.gridx = 3;
         c.gridy = 1;

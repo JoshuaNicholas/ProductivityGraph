@@ -29,7 +29,7 @@ public class JsonHelper {
         List<String[]> sheet = new ArrayList<>();
 
         if (element.isJsonArray()) {
-            System.out.println("Sheet");
+            //System.out.println("Sheet");
             element.getAsJsonArray().forEach(e -> sheet.add(ReadJsonArray(e.getAsJsonArray())));
         }
         //if (element.isJsonObject() || element.isJsonPrimitive())
@@ -43,7 +43,7 @@ public class JsonHelper {
         List<String> array = new ArrayList<>();
 
         if (element.isJsonArray()) {
-            System.out.println("Row");
+            //System.out.println("Row");
             element.getAsJsonArray().forEach(e -> array.add(ReadJsonString(e)));
         }
 
@@ -52,7 +52,7 @@ public class JsonHelper {
 
     private static String ReadJsonString(JsonElement element) {
         if (element.isJsonObject() || element.isJsonPrimitive()) {
-            System.out.println("  " + element.getAsString());
+            //System.out.println("  " + element.getAsString());
             return element.getAsString();
         }
         return null;

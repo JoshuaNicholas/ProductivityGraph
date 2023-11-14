@@ -59,6 +59,9 @@ public class GraphComponent {
         // Left-align name text
         g.drawString(name, 4, height/2 + getStringBounds(g, name, 0, 0).height/2);
 
+        // Value
+        g.drawString(currentValue + "", currentValuePosition, height/2 + getStringBounds(g, "" + currentValue, 0, 0).height/2);
+
         return image;
     }
 

@@ -18,9 +18,18 @@ public class Main {
                 throw new RuntimeException(e);
             }
         });
-        reader.Init();
+        while (!reader.Init()) {
+            try {
+                window.ShowIntroScreen("Failed to log in!");
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         window.ShowItemsScreen(reader);
+        // Initial update
+        window.Update(reader);
 
         TimerTask refreshTask = new TimerTask() {
             @Override
@@ -29,10 +38,8 @@ public class Main {
             }
         };
 
-        //window.SetData();
-
         Timer refreshTimer = new Timer();
-        // Update every second
-        refreshTimer.scheduleAtFixedRate(refreshTask, 0, 10000);
+        // Update every 30 seconds
+        refreshTimer.scheduleAtFixedRate(refreshTask, 0, 30000);
     }
 }

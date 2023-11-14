@@ -28,11 +28,11 @@ public class WorksheetReader {
         if (worksheets == null)
             return;
         for (WorkbookWorksheet sheet : worksheets.getCurrentPage()) {
-            WorkbookRange cell = driveItem.workbook().worksheets(sheet.id)
-                    .cell(WorkbookWorksheetCellParameterSet.newBuilder().withColumn(1).withRow(1).build())
-                    .buildRequest()
-                    .get();
-            System.out.println("Cells: " + cell.text.getAsString());
+            //WorkbookRange cell = driveItem.workbook().worksheets(sheet.id)
+            //        .cell(WorkbookWorksheetCellParameterSet.newBuilder().withColumn(1).withRow(1).build())
+            //        .buildRequest()
+            //        .get();
+            //System.out.println("Cells: " + cell.text.getAsString());
 
             WorkbookRange range = driveItem.workbook().worksheets(sheet.id)
                     .usedRange()

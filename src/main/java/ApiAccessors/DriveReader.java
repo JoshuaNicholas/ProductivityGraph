@@ -62,26 +62,31 @@ public class DriveReader {
         return sheetItems;
     }
 
-    public void Init() {
+    public boolean Init() {
         IAuthenticationProvider authenticationProvider;
         try {
             authenticationProvider = createProvider();
         }
         catch (Exception e) {
             System.err.println(e.getMessage());
-            return;
+            return false;
         }
         graphClient = GraphServiceClient
                 .builder()
                 .authenticationProvider(authenticationProvider)
                 .buildClient();
-
-        Drive = graphClient
-                .me()
-                .drive()
-                .buildRequest()
-                .get();
+        try {
+            Drive = graphClient
+                    .me()
+                    .drive()
+                    .buildRequest()
+                    .get();
+        }
+        catch (Exception e) {
+            return false;
+        }
         System.out.println("Found Drive " + Drive.name);
+        return true;
     }
 
     private IAuthenticationProvider createProvider() throws Exception {
